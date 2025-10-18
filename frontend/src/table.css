@@ -1,0 +1,107 @@
+/* table.css */
+
+.p-2 {
+    padding: 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border: 2px solid #000; /* толщина стиль цвет */
+    margin: 1rem;
+    border-radius: 8px;
+}
+
+.p-2 input[type="text"] {
+    height: 10%;
+    width: 60%;
+    padding: 10px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 20px;
+}
+
+
+.p-2 input[type="text"]::placeholder {
+    color: #6c757d;
+}
+
+/* Стили таблицы */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+thead {
+    background: black;
+}
+
+thead th {
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    position: relative;
+}
+
+thead th:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Индикатор сортировки */
+thead th::after {
+    content: '↕';
+    margin-left: 8px;
+    opacity: 0.6;
+    font-size: 12px;
+}
+
+thead th[data-sort="asc"]::after {
+    content: '↑';
+    opacity: 1;
+}
+
+thead th[data-sort="desc"]::after {
+    content: '↓';
+    opacity: 1;
+}
+
+/* Стили для строк таблицы */
+tbody tr {
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #e9ecef;
+}
+
+tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+tbody tr:nth-child(even):hover {
+    background-color: #e9ecef;
+}
+
+/* Стили для ячеек */
+td {
+    padding: 12px;
+    border: none;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.2s ease;
+}
+
+td:first-child {
+    font-weight: 600;
+    color: #667eea;
+}
+
