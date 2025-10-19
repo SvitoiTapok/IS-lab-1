@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/myapp_db
+    url: jdbc:postgresql://postgres:5432/myapp_db
     username: myapp_user
     password: myapp_password
     driver-class-name: org.postgresql.Driver
@@ -19,7 +19,7 @@ spring:
     init:
       mode: always
 
-# Логирование для отладки
+
 logging:
   level:
     org.hibernate.SQL: DEBUG

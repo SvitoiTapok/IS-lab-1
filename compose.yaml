@@ -3,6 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:16
+    container_name: islab1-postgres  # Добавьте имя контейнера
     environment:
       POSTGRES_DB: myapp_db
       POSTGRES_USER: myapp_user
@@ -12,20 +13,46 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U myapp_user -d myapp_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network  # Добавьте сеть
 
   backend:
     build: .
+    container_name: islab1-backend  # Добавьте имя контейнера
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/myapp_db  # ДОБАВЬТЕ ЭТО!
+      - SPRING_DATASOURCE_USERNAME=myapp_user
+      - SPRING_DATASOURCE_PASSWORD=myapp_password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      postgres:
+        condition: service_healthy  # Ждем пока БД будет готова
+    networks:
+      - app-network  # Добавьте сеть
 
   frontend:
     build: ./frontend
+    container_name: islab1-frontend  # Добавьте имя контейнера
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
     depends_on:
       - backend
+    networks:
+      - app-network  # Добавьте сеть
+
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
