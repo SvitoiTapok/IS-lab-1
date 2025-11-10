@@ -20,8 +20,8 @@ const CustomError = (props) => {
 
     if (!props.isVisible) return null;
     return (
-        <div className="error">
-            ERROR!<br/><br/>
+        <div className={props?.classname||"error"}>
+            {props.classname==="notification"?"NOTIFICATION":"ERROR!"}<br/><br/>
             {props.value}
         </div>
     );

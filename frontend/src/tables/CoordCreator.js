@@ -7,9 +7,9 @@ import {
     getSortedRowModel,
     useReactTable
 } from "@tanstack/react-table";
-import CustomError from "./error";
-import "./pagination.css"
-import coordinatesService from "./services/CoordinatesService";
+import CustomError from "../util/error";
+import "../util/pagination.css"
+import coordinatesService from "../services/CoordinatesService";
 
 const CoordCreator = () => {
     const [data, setData] = useState({
@@ -76,7 +76,7 @@ const CoordCreator = () => {
         }
         const floatY = parseInt(y);
         if(isNaN(floatY)){
-            showError('X должен быть корректным числом')
+            showError('Y должен быть корректным числом')
             return;
         }
         if(floatY<=-563){

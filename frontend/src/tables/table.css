@@ -86,3 +86,16 @@ td:first-child {
     box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
     white-space: nowrap;
 }
+.action-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+
+}
+.delete-button{
+    margin: 4px;
+    background:white;
+}
+.edit-button{
+     background:white;
+ }

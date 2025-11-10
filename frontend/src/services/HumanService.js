@@ -3,7 +3,7 @@ const API_BASE_URL = 'http://localhost:8080/api';
 
 const humanService = {
 
-    getAllHumans: async (page, size, sortBy, sortOrder) => {
+    getHumans: async (page, size, sortBy, sortOrder) => {
         try {
             const response = await fetch(`${API_BASE_URL}/getHumans?page=${page}&size=${size}&sortBy${sortBy}&sortOrder${sortOrder}`);
             if (!response.ok) {

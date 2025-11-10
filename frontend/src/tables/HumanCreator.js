@@ -7,9 +7,9 @@ import {
     getSortedRowModel,
     useReactTable
 } from "@tanstack/react-table";
-import CustomError from "./error";
-import humanService from "./services/HumanService";
-import "./pagination.css"
+import CustomError from "../util/error";
+import humanService from "../services/HumanService";
+import "../util/pagination.css"
 
 const HumanCreator = () => {
     // const [humans, setHumans] = useState([]);
@@ -47,7 +47,7 @@ const HumanCreator = () => {
             sortOrder = sorting[0].desc ? 'desc' : 'asc';
         }
 
-        await humanService.getAllHumans(
+        await humanService.getHumans(
             pagination.pageIndex,
             pagination.pageSize,
             sortBy,
