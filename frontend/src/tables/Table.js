@@ -254,7 +254,8 @@ const MainTable = () => {
     });
 
     return (
-        <div className="p-2">
+        <div className="creator" id="city_creator">
+            <span>Основная таблица</span>
             <div>
                 <span className="">Отфильтровать по имени</span>
                 <input
@@ -315,10 +316,8 @@ const MainTable = () => {
                                 {/*    <button className="sort-button" onClick={header.column.getToggleSortingHandler()}>↕</button>*/}
                                 {/*</span>*/}
                                 {/*</div>*/}
-                                <span className="ml-1">
                             {header.column.getIsSorted() === 'asc' ? '↑' :
                                 header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
-                        </span>
 
                             </th>
                         ))}

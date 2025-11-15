@@ -1,4 +1,3 @@
-
 const API_BASE_URL = 'http://localhost:8080/api';
 
 const queryService = {
@@ -37,23 +36,15 @@ const queryService = {
 
     calculateRoute: async (fromCityId, toCityId) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/calculateRoute`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    fromCityId: fromCityId,
-                    toCityId: toCityId
-                })
-            });
+            const response = await fetch(`${API_BASE_URL}/calculateRoute?fromCityId=${fromCityId}&toCityId=${toCityId}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
         } catch (error) {
-            console.error('Error calculating route:', error);
+            console.error('Error getting cities with population less than:', error);
             throw error;
         }
     },
+
 
     calculateMaxMinPopulationRoute: async () => {
         try {

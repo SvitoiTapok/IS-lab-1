@@ -63,13 +63,12 @@ public class QueryBean {
 
     public double calculateRouteDistance(Integer fromCityId, Integer toCityId) {
         try {
-            Optional<City> fromCity = citiesRepository.findById(fromCityId);
-            Optional<City> toCity = citiesRepository.findById(toCityId);
-            if (fromCity.isPresent() && toCity.isPresent()) {
-                return calculateDistance(fromCity, toCity);
-            }else {
-                return -1;
-            }
+            City fromCity = citiesRepository.findById(fromCityId)
+                    .orElseThrow(() -> new IllegalArgumentException("Город с ID " + fromCityId + " не найден"));
+            City toCity = citiesRepository.findById(toCityId)
+                    .orElseThrow(() -> new IllegalArgumentException("Город с ID " + toCityId + " не найден"));
+
+            return calculateDistance(fromCity, toCity);
         } catch (Exception e) {
             return -1;
         }
@@ -83,21 +82,22 @@ public class QueryBean {
                 return -1;
             }
 
-            Optional<City> maxPopulationCity = allCities.stream()
-                    .max(Comparator.comparing(City::getPopulation));
+            City maxPopulationCity = allCities.stream()
+                    .max(Comparator.comparing(City::getPopulation)).orElseThrow();
 
-            Optional<City> minPopulationCity = allCities.stream()
-                    .min(Comparator.comparing(City::getPopulation));
+            City minPopulationCity = allCities.stream()
+                    .min(Comparator.comparing(City::getPopulation)).orElseThrow();
             return calculateDistance(maxPopulationCity, minPopulationCity);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return -1;
         }
     }
-    private double calculateDistance(Optional<City> fromCity, Optional<City> toCity) {
-        float x1 = fromCity.get().getCoordinates().getX();
-        int y1 = fromCity.get().getCoordinates().getY();
-        float x2 = toCity.get().getCoordinates().getX();
-        int y2 = toCity.get().getCoordinates().getY();
-        return Math.pow(Math.pow(x1-x2, 2)+Math.pow(y1*1.0+y2*1.0, 2), 0.5);
+    private double calculateDistance(City fromCity, City toCity) {
+        float x1 = fromCity.getCoordinates().getX();
+        int y1 = fromCity.getCoordinates().getY();
+        float x2 = toCity.getCoordinates().getX();
+        int y2 = toCity.getCoordinates().getY();
+        return Math.pow(Math.pow(x1-x2, 2)+Math.pow(y1*1.0-y2*1.0, 2), 0.5);
     }
 }

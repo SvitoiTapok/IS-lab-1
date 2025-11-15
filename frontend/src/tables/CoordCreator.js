@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-table";
 import CustomError from "../util/error";
 import "../util/pagination.css"
+import "./table.css"
 import coordinatesService from "../services/CoordinatesService";
 
 const CoordCreator = () => {
@@ -171,13 +172,15 @@ const CoordCreator = () => {
                                 key={header.id}
                                 className="text-left border"
                                 style={{cursor: 'pointer'}}
+                                onClick={header.column.getToggleSortingHandler()}
                             >
                                 {flexRender(
                                     header.column.columnDef.header,
                                     header.getContext()
                                 )}
-                                <button className="sort-button" onClick={header.column.getToggleSortingHandler()}>↕
-                                </button>
+
+                            {header.column.getIsSorted() === 'asc' ? '↑' :
+                                header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
                             </th>
                         ))}
                     </tr>

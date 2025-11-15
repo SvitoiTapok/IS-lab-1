@@ -57,19 +57,11 @@ public class QueryAPIController {
         }
     }
 
-    @Data
-    private class RouteRequest{
-        @NotNull
-        private Integer fromCityId;
-
-        @NotNull
-        private Integer toCityId;
-    }
-
-    @PostMapping("/calculateRoute")
-    public ResponseEntity<Double> calculateRoute(@RequestBody RouteRequest request) {
+    @GetMapping("/calculateRoute")
+    public ResponseEntity<Double> calculateRoute(@RequestParam Integer fromCityId,
+                                                 @RequestParam Integer toCityId) {
         try {
-            double dist = queryBean.calculateRouteDistance(request.getFromCityId(), request.getToCityId());
+            double dist = queryBean.calculateRouteDistance(fromCityId, toCityId);
             return ResponseEntity.ok(dist);
         }
         catch (Exception e) {
