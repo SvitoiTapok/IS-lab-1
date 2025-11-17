@@ -24,10 +24,10 @@ public class Coordinates {
     private Integer id;
 
     @NotNull
-    private float x;
+    private Float x;
     @Column(name = "y",
-    columnDefinition = "INTEGER CHECK(y>-563)")
-    private int y; //Значение поля должно быть больше -563
+    columnDefinition = "REAL CHECK(y>-563)")
+    private float y; //Значение поля должно быть больше -563
     @OneToMany(mappedBy = "coordinates")
     @JsonIgnore
     private List<City> cities = new ArrayList<>();

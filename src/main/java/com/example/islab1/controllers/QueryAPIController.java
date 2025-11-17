@@ -58,8 +58,8 @@ public class QueryAPIController {
     }
 
     @GetMapping("/calculateRoute")
-    public ResponseEntity<Double> calculateRoute(@RequestParam Integer fromCityId,
-                                                 @RequestParam Integer toCityId) {
+    public ResponseEntity<Double> calculateRoute(@RequestParam Long fromCityId,
+                                                 @RequestParam Long toCityId) {
         try {
             double dist = queryBean.calculateRouteDistance(fromCityId, toCityId);
             return ResponseEntity.ok(dist);

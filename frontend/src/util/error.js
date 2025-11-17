@@ -2,27 +2,27 @@ import React, {useEffect, useState} from 'react';
 import './error.css';
 
 
-const CustomError = (props) => {
-    const [isVisible, setIsVisible] = useState(true);
+const CustomError = () => {
+    const [isVisible, setIsVisible] = useState(false);
+    const [message, setMessage] = useState("");
+    const [type, setType] = useState("");
 
 
     const duration = 3000
-    useEffect(() => {
-        // Полностью скрываем через duration
+    const showNotification = (notifMessage, notifType) => {
+        setIsVisible(true);
         const hideTimer = setTimeout(() => {
             setIsVisible(false);
         }, duration);
-
-        return () => {
-            clearTimeout(hideTimer);
-        };
-    }, [duration]);
-
-    if (!props.isVisible) return null;
+        setMessage(notifMessage)
+        setType(notifType)
+        clearTimeout(hideTimer)
+    }
+    if (isVisible) return null;
     return (
-        <div className={props?.classname||"error"}>
-            {props.classname==="notification"?"NOTIFICATION":"ERROR!"}<br/><br/>
-            {props.value}
+        <div className={"error"}>
+            {type==="notification"?"NOTIFICATION":"ERROR!"}<br/><br/>
+            {message}
         </div>
     );
 };

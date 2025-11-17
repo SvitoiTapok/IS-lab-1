@@ -14,6 +14,7 @@ import queryService from "../services/QueryService";
 import {wait} from "@testing-library/user-event/dist/utils";
 import coordinatesService from "../services/CoordinatesService";
 import cityService from "../services/CityService";
+import {useError} from "../util/ErrorContext";
 
 
 /* global BigInt */
@@ -26,52 +27,67 @@ const QueryManager = () => {
     });
     const [metersAbove, setMetersAbove] = useState('');
     const [population, setPopulation] = useState('');
-    const [sorting, setSorting] = useState([]);
-    const [error, setError] = useState('')
-    const [errorVisible, setErrorVisible] = useState(false)
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 3,
-    });
     const [response, setResponse] = useState('');
-    const [classErr, setClassErr] = useState("error");
     const [cities, setCities] = useState([]);
     const [city1, setCity1] = useState({id: 0, name: ""});
     const [city2, setCity2] = useState({id: 0, name: ""});
-    const showError = (errorMessage) => {
-        setError(errorMessage);
-        if (errorVisible) {
-            return;
-        }
-        setErrorVisible(true);
-
-        setTimeout(() => {
-            setErrorVisible(false);
-        }, 3000);
-    };
+    const {showError, showNotification} = useError();
     useEffect(() => {
         const initializeData = async () => {
             try {
-                const [cities] = await Promise.all([
-                    cityService.getAllCities(0, 10000000, 'id', 'asc'),
+                const [cityData] = await Promise.all([
+                    cityService.getAllCities(
+                        0,
+                        10000000,
+                        "",
+                        "", "", "", ""
+                    )
                 ]);
-
-                setCities(cities.content.map(x=> {return{id: x.id,name: x.name}}));
-
-                if (cities.content.length > 0) {
-                    setCity1(cities.content[0]);
-                    setCity2(cities.content[0]);
-                }
+                setCities(cityData.content.map(x => {
+                    return {id: x.id, name: x.name}
+                }))
+                setCity1({id: cityData.content[0].id, name: cityData.content[0].name});
+                setCity2({id: cityData.content[0].id, name: cityData.content[0].name});
+                console.log({id: cityData.content[0].id, name: cityData.content[0].name})
             } catch (err) {
                 showError(err.toString());
             }
         };
-
         initializeData();
+        const intervalId = setInterval(getAllCities, 5000);
+
+        return () => clearInterval(intervalId);
     }, []);
+
+    // useEffect(() => {
+    //     console.log(cities)
+    //     setCity1(cities[0]);
+    //     setCity2(cities[0]);
+    // }, [cities]);
+    const getAllCities = async () => {
+        let sortBy = 'id';
+        let sortOrder = 'asc';
+
+
+        await cityService.getAllCities(
+            0,
+            10000000,
+            sortBy,
+            sortOrder, "", "", ""
+        )
+            .then(data => {
+                setCities(data.content.map(x => {
+                    return {id: x.id, name: x.name}
+                }))
+            })
+            .catch(err => {
+                showError(err.toString());
+            });
+        console.log(cities);
+    }
     const getMetersAbove = () => {
-        const met = parseFloat(metersAbove.replace(",","."))
-        if(isNaN(met)){
+        const met = parseFloat(metersAbove.replace(",", "."))
+        if (isNaN(met)) {
             showError("Значение высоты города над уровнем моря должно быть корректным значением")
             return null;
         }
@@ -81,12 +97,12 @@ const QueryManager = () => {
     const getPopulation = () => {
         try {
             const met = BigInt(population)
-            if(met<1){
+            if (met < 1) {
                 showError("Значение населения города должно быть > 0")
                 return null;
             }
             return met
-        }catch (e){
+        } catch (e) {
             showError("Значение населения должно быть натуральным числом")
             return null;
         }
@@ -94,30 +110,29 @@ const QueryManager = () => {
     }
     const getMACount = async () => {
         const met = getMetersAbove()
-        if(!met) return null
+        if (!met) return null
         try {
-            await queryService.countCitiesAboveSeaLevel(met).then(data => setResponse(data+"$")
+            await queryService.countCitiesAboveSeaLevel(met).then(data => setResponse(data + "$")
             );
-            setClassErr("notification")
-            showError("Запрос успешно обработан")
-            await wait(3000).then(()=>        setClassErr("error"))
-        }catch (err){
+            showNotification("Запрос успешно обработан")
+        } catch (err) {
             showError(err.toString())
             return null;
         }
     }
     const getPCount = async () => {
         const met = getPopulation()
-        if(!met) return null
+        if (!met) return null
         try {
             await queryService.getCitiesWithPopulationLessThan(met).then(data => {
-                console.log(data); setResponse(data.map(city => {return cityToString(city);
-}).join("$"))}
+                    console.log(data);
+                    setResponse(data.map(city => {
+                        return cityToString(city);
+                    }).join("$"))
+                }
             );
-            setClassErr("notification")
-            showError("Запрос успешно обработан")
-            await wait(3000).then(()=>        setClassErr("error"))
-        }catch (err){
+            showNotification("Запрос успешно обработан")
+        } catch (err) {
             showError(err.toString())
             return null;
         }
@@ -126,12 +141,12 @@ const QueryManager = () => {
     const getTCodes = async () => {
         try {
             await queryService.getUniqueTelephoneCodes().then(data => {
-                console.log(data); setResponse(data.join("$"))}
+                    console.log(data);
+                    setResponse(data.join("$"))
+                }
             );
-            setClassErr("notification")
-            showError("Запрос успешно обработан")
-            await wait(3000).then(()=>        setClassErr("error"))
-        }catch (err){
+            showNotification("Запрос успешно обработан")
+        } catch (err) {
             showError(err.toString())
             return null;
         }
@@ -139,12 +154,12 @@ const QueryManager = () => {
     const getDistBU = async () => {
         try {
             await queryService.calculateRoute(city1.id, city2.id).then(data => {
-                console.log(data); setResponse(data+"$")}
+                    console.log(data);
+                    setResponse(data + "$")
+                }
             );
-            setClassErr("notification")
-            showError("Запрос успешно обработан")
-            await wait(3000).then(()=>        setClassErr("error"))
-        }catch (err){
+            showNotification("Запрос успешно обработан")
+        } catch (err) {
             showError(err.toString())
             return null;
         }
@@ -152,12 +167,13 @@ const QueryManager = () => {
     const getDistBM = async () => {
         try {
             await queryService.calculateMaxMinPopulationRoute().then(data => {
-                console.log(data); setResponse(data+"$")}
+                    console.log(data);
+                    setResponse(data + "$")
+                }
             );
-            setClassErr("notification")
-            showError("Запрос успешно обработан")
-            await wait(3000).then(()=>        setClassErr("error"))
-        }catch (err){
+
+            showNotification("Запрос успешно обработан")
+        } catch (err) {
             showError(err.toString())
             return null;
         }
@@ -169,25 +185,7 @@ const QueryManager = () => {
         capital:${city.capital}, masl:${city.metersAboveSeaLevel}, popdensity:${city.populationDensity}, telephoneCode:${city.telephoneCode}
         climate:${city.climate}, governor:${city.human.name})`
     }
-    const getAllCities = async () => {
-        let sortBy = 'id';
-        let sortOrder = 'asc';
 
-
-        await cityService.getAllCities(
-            0,
-            10000000,
-            sortBy,
-            sortOrder,"","",""
-        )
-            .then(data => {
-                console.log(data)
-                setCities(data.content.map(x=> {return{id: x.id,name: x.name}}));
-            })
-            .catch(err => {
-                showError(err.toString());
-            });
-    }
     return (
         <div className="creator">
             <span>
@@ -270,11 +268,10 @@ const QueryManager = () => {
                 </tbody>
             </table>
 
-            <span>Response: {response.split('$').map((line, index) => (
+            <span>Результат запроса: {response.split('$').map((line, index) => (
                 line !== "" && <div key={index} style={{margin: "10px"}} className="creator">{line}</div>
             ))}
             </span>
-            {error && <CustomError value={error} classname={classErr} isVisible={errorVisible}/>}
         </div>
 
     );

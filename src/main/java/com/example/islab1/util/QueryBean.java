@@ -61,7 +61,7 @@ public class QueryBean {
         }
     }
 
-    public double calculateRouteDistance(Integer fromCityId, Integer toCityId) {
+    public double calculateRouteDistance(Long fromCityId, Long toCityId) {
         try {
             City fromCity = citiesRepository.findById(fromCityId)
                     .orElseThrow(() -> new IllegalArgumentException("Город с ID " + fromCityId + " не найден"));
@@ -95,9 +95,9 @@ public class QueryBean {
     }
     private double calculateDistance(City fromCity, City toCity) {
         float x1 = fromCity.getCoordinates().getX();
-        int y1 = fromCity.getCoordinates().getY();
+        float y1 = fromCity.getCoordinates().getY();
         float x2 = toCity.getCoordinates().getX();
-        int y2 = toCity.getCoordinates().getY();
+        float y2 = toCity.getCoordinates().getY();
         return Math.pow(Math.pow(x1-x2, 2)+Math.pow(y1*1.0-y2*1.0, 2), 0.5);
     }
 }

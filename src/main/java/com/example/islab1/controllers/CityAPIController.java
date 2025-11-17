@@ -41,7 +41,6 @@ public class CityAPIController {
             @RequestParam(defaultValue = "") String human
     ) {
         try {
-            System.out.println(name + "dfasdfasdfasdfas" + page + size + sortBy);
             Sort sort = sortOrder.equalsIgnoreCase("desc")
                     ? Sort.by(sortBy).descending()
                     : Sort.by(sortBy).ascending();
@@ -58,27 +57,21 @@ public class CityAPIController {
     }
 
     @PostMapping("/addCity")
-    public ResponseEntity<City> addCity(@RequestBody City city) {
+    public ResponseEntity<?> addCity(@RequestBody City city) {
         try {
-            System.out.println(city);
             citiesRepository.save(city);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println(city);
-            return ResponseEntity.status(400).body(null);
+            return ResponseEntity.status(400).body(e.getMessage());
         }
         return ResponseEntity.ok(city);
     }
     @PatchMapping("/updateCity/{id}")
-    public ResponseEntity<City> updateCity(
-            @PathVariable Integer id,
+    public ResponseEntity<?> updateCity(
+            @PathVariable Long id,
             @RequestBody City updatedCity) {
         try {
-
             City existingCity = citiesRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("City not found with id: " + id));
-
-            // Обновляем только переданные поля
             if (updatedCity.getName() != null) {
                 existingCity.setName(updatedCity.getName());
             }
@@ -88,7 +81,7 @@ public class CityAPIController {
             if (updatedCity.getArea() != null) {
                 existingCity.setArea(updatedCity.getArea());
             }
-            if (updatedCity.getPopulation() != null) {
+            if (updatedCity.getPopulation() > 0) {
                 existingCity.setPopulation(updatedCity.getPopulation());
             }
             if (updatedCity.getEstablishmentDate() != null) {
@@ -117,12 +110,12 @@ public class CityAPIController {
             return ResponseEntity.ok(savedCity);
 
         } catch (Exception e) {
-            return ResponseEntity.status(400).body(null);
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
     @DeleteMapping("/deleteCity/{id}")
-    public ResponseEntity<?> deleteCity(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteCity(@PathVariable Long id) {
         try {
             if (!citiesRepository.existsById(id)) {
                 return ResponseEntity.status(404).body("City not found with id: " + id);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
@@ -8,14 +8,19 @@ import CoordCreator from "./tables/CoordCreator";
 import {BrowserRouter, Link, NavLink, Route, Routes} from 'react-router-dom';
 import './util/navigation.css'
 import CityCreator from "./tables/CityCreator";
-import CityModificator from "./tables/CityModificator";
+import CityModificator from "./modificators/CityModificator";
 import QueryManager from "./tables/QueryManager";
+import CustomError from "./util/error";
+import {ErrorProvider} from "./util/ErrorContext";
+import HumanModificator from "./modificators/HumanModificator";
+import CoordsModificator from "./modificators/CoordsModificator";
 //import reportWebVitals from './reportWebVitals';
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+
     <React.StrictMode>
 
+        <ErrorProvider>
         <BrowserRouter>
             <nav className="navigation">
                 <NavLink
@@ -55,9 +60,12 @@ root.render(
                 <Route path="/coord" element={<CoordCreator />} />
                 <Route path="/city" element={<CityCreator />} />
                 <Route path="/edit-city" element={<CityModificator />} />
+                <Route path="/edit-human" element={<HumanModificator />} />
+                <Route path="/edit-coord" element={<CoordsModificator />} />
                 <Route path="/query" element={<QueryManager/>}/>
             </Routes>
         </BrowserRouter>
+        </ErrorProvider>
     </React.StrictMode>
 );
 

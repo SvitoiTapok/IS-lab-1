@@ -17,6 +17,7 @@ import cityCreator from "./CityCreator";
 import editIcon from '../imgs/edit-icon.png';
 import deleteIcon from '../imgs/delete-icon.png';
 import {wait} from "@testing-library/user-event/dist/utils";
+import {useError} from "../util/ErrorContext";
 
 const MainTable = () => {
     const navigate = useNavigate();
@@ -30,25 +31,13 @@ const MainTable = () => {
         pageIndex: 0,
         pageSize: 3,
     });
-    const [error, setError] = useState('')
-    const [errorVisible, setErrorVisible] = useState(false)
+
     const [nameFilter, setNameFilter] = useState('')
     const [climateFilter, setClimateFilter] = useState('')
     const [humanFilter, setHumanFilter] = useState('')
-    const [classn, setClassN] = useState('error')
+    const { showError, showNotification } = useError();
 
 
-    const showError = (errorMessage) => {
-        setError(errorMessage);
-        if (errorVisible) {
-            return;
-        }
-        setErrorVisible(true);
-
-        setTimeout(() => {
-            setErrorVisible(false);
-        }, 3000);
-    };
     const coordsToString = (coord) => {
         if (coord == null)
             return ""
@@ -93,23 +82,19 @@ const MainTable = () => {
         try {
             await cityService.deleteCity(cityId);
             callServer();
-            setClassN("notification")
 
-            showError('Город успешно удален');
-            await wait(3000).then(()=>        setClassN("error"))
+            showNotification('Город успешно удален');
         } catch (err) {
             showError('Ошибка при удалении города: ' + err.toString());
         }
     };
 
-    // Функция редактирования города
     const handleEdit = (city) => {
         navigate('/edit-city', {
             state: {
                 city: city,
             }
         });
-        // Пример: setEditingCity(city); // если есть состояние для редактирования
     };
     const columns = useMemo(
         () => [
@@ -120,48 +105,48 @@ const MainTable = () => {
             },
             {
                 accessorKey: 'name',
-                header: 'Name',
+                header: 'Название',
                 cell: info => info.getValue(),
                 enableSorting: true,
                 enableColumnFilter: true
             },
             {
                 accessorKey: 'coordinates',
-                header: 'Coordinates',
+                header: 'Координаты',
                 cell: info => coordsToString(info.getValue()),
                 enableSorting: true,
                 enableColumnFilter: false
             },
             {
                 accessorKey: 'creationDate',
-                header: 'Creation date',
+                header: 'Дата создания записи',
                 cell: info => new Date(info.getValue()).toLocaleString(),
                 enableColumnFilter: false
             },
             {
                 accessorKey: 'area',
-                header: 'Area',
+                header: 'Площадь',
                 cell: info => info.getValue(),
                 enableSorting: true,
                 enableColumnFilter: false
             },
             {
                 accessorKey: 'population',
-                header: 'Population',
+                header: 'Население',
                 cell: info => info.getValue(),
                 enableSorting: true,
                 enableColumnFilter: false
             },
             {
                 accessorKey: 'establishmentDate',
-                header: 'Establishment Date',
+                header: 'Дата основания',
                 cell: info => info.getValue(),
                 enableSorting: true,
                 enableColumnFilter: false
             },
             {
                 accessorKey: 'capital',
-                header: 'Capital',
+                header: 'Столица',
                 cell: info => {
                     if (info.getValue()) return "YES"; else return "NO"
                 },
@@ -169,39 +154,39 @@ const MainTable = () => {
             },
             {
                 accessorKey: 'metersAboveSeaLevel',
-                header: 'Meters ASL',
+                header: 'Высота над уровнем моря',
                 cell: info => info.getValue(),
                 enableSorting: true,
             },
             {
                 accessorKey: 'populationDensity',
-                header: 'population density',
+                header: 'Плотность населения',
                 cell: info => info.getValue(),
                 enableSorting: true,
             },
             {
                 accessorKey: 'telephoneCode',
-                header: 'Telephone code',
+                header: 'Телефонный код',
                 cell: info => info.getValue(),
                 enableSorting: true,
             },
             {
                 accessorKey: 'climate',
-                header: 'Climate',
+                header: 'Климат',
                 cell: info => info.getValue(),
                 enableSorting: true,
                 enableColumnFilter: true
             },
             {
                 accessorKey: 'human',
-                header: 'Governor',
+                header: 'Губернатор',
                 cell: info => info.getValue().name,
                 enableSorting: true,
                 enableColumnFilter: true
             },
             {
                 id: 'actions',
-                header: 'Actions',
+                header: 'Действия',
                 cell: ({row}) => (
                     <div className="flex space-x-2">
                         <button
@@ -304,18 +289,6 @@ const MainTable = () => {
                                     header.column.columnDef.header,
                                     header.getContext()
                                 )}
-                                {/*<div className="column-filter">*/}
-                                {/*    {header.column.columnDef.enableColumnFilter && <input*/}
-                                {/*        type="text"*/}
-                                {/*        placeholder={`Filter ${header.column.columnDef.header}`}*/}
-                                {/*        value={header.column.getFilterValue()}*/}
-                                {/*        onChange={e => header.column.setFilterValue(e.target.value)}*/}
-                                {/*        className="filter-input"*/}
-                                {/*    />}*/}
-                                {/*    <span>*/}
-                                {/*    <button className="sort-button" onClick={header.column.getToggleSortingHandler()}>↕</button>*/}
-                                {/*</span>*/}
-                                {/*</div>*/}
                             {header.column.getIsSorted() === 'asc' ? '↑' :
                                 header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
 
@@ -336,8 +309,6 @@ const MainTable = () => {
                 ))}
                 </tbody>
             </table>
-            {error && <CustomError value={error} classname={classn} isVisible={errorVisible}/>
-            }
             {/*Пагинация*/}
             <div>
                 <button className="vectors"

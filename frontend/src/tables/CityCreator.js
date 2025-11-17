@@ -8,13 +8,12 @@ import {
     getSortedRowModel,
     useReactTable
 } from "@tanstack/react-table";
-import CustomError from "../util/error";
 import "../util/pagination.css"
 import coordinatesService from "../services/CoordinatesService";
 import {DatePicker} from "antd";
 import humanService from "../services/HumanService";
 import cityService from "../services/CityService";
-import {wait} from "@testing-library/user-event/dist/utils";
+import {useError} from "../util/ErrorContext";
 
 const climats = ["RAIN_FOREST",
     "TROPICAL_SAVANNA",
@@ -36,21 +35,8 @@ const CityCreator = () => {
     const [climate, setClimate] = useState(climats[0]);
     const [humans, setHumans] = useState([]);
     const [governor, setGovernor] = useState({id: 0, name: ""});
-    const [error, setError] = useState('')
-    const [errorVisible, setErrorVisible] = useState(false);
-    const [classErr, setClassErr] = useState("error");
 
-    const showError = (errorMessage) => {
-        setError(errorMessage);
-        if (errorVisible) {
-            return;
-        }
-        setErrorVisible(true);
-
-        setTimeout(() => {
-            setErrorVisible(false);
-        }, 3000);
-    };
+    const {showError, showNotification} = useError();
     const switch_state = () => {
         setCapital(!capital);
     }
@@ -80,6 +66,9 @@ const CityCreator = () => {
         };
 
         initializeData();
+        const intervalId = setInterval(()=>{getAllCoords(); getAllHumans()}, 5000);
+
+        return () => clearInterval(intervalId);
     }, []);
 
     const coordsToString = (coord) => {
@@ -134,7 +123,7 @@ const CityCreator = () => {
     const getName = () => {
         const vname = name;
         if (vname.trim() === '') {
-            showError('Имя пользователя должно быть не пустой строкой')
+            showError('Название города должно быть не пустой строкой')
             return null;
         }
         return vname
@@ -143,15 +132,14 @@ const CityCreator = () => {
         return coordinate;
     }
     const getArea = () => {
-        try{
+        try {
             const varea = BigInt(area);
             if (varea < 1) {
                 showError('Площадь должна числом быть больше нуля')
                 return null;
             }
             return varea.toString()
-        }
-        catch (e) {
+        } catch (e) {
             showError('Площадь должна быть натуральным числом')
             return null;
         }
@@ -170,7 +158,7 @@ const CityCreator = () => {
         return vpopulation
     }
     const getEstablishementDate = () => {
-        if(date==null){
+        if (date == null) {
             showError('Выберите дату')
             return null;
         }
@@ -196,7 +184,7 @@ const CityCreator = () => {
                 return null;
             }
             return vpopulationDensity.toString()
-        }catch (e) {
+        } catch (e) {
             showError('Плотность населения должна быть натуральным числом')
             return null;
         }
@@ -261,7 +249,6 @@ const CityCreator = () => {
             showError(err.toString());
             return;
         }
-        setError('');
         setName('');
         setArea('');
         setPopulation('');
@@ -270,11 +257,7 @@ const CityCreator = () => {
         setTelephoneCode('');
         setClimate(climats[0]);
         setPopulationDensity('')
-        setClassErr("notification")
-        showError("Объект успешно добавлен")
-        await wait(3000).then(()=>        setClassErr("error"))
-
-
+        showNotification("Объект успешно добавлен")
     }
     return (
         <div className="creator">
@@ -294,9 +277,7 @@ const CityCreator = () => {
                                 value={name}
                                 onChange={(e) => {
                                     setName(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -333,9 +314,7 @@ const CityCreator = () => {
                                 value={area}
                                 onChange={(e) => {
                                     setArea(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -349,9 +328,7 @@ const CityCreator = () => {
                                 value={population}
                                 onChange={(e) => {
                                     setPopulation(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -392,9 +369,7 @@ const CityCreator = () => {
                                 value={metersAbove}
                                 onChange={(e) => {
                                     setMetersAbove(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -408,9 +383,7 @@ const CityCreator = () => {
                                 value={populationDensity}
                                 onChange={(e) => {
                                     setPopulationDensity(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -424,9 +397,7 @@ const CityCreator = () => {
                                 value={telephoneCode}
                                 onChange={(e) => {
                                     setTelephoneCode(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -460,8 +431,6 @@ const CityCreator = () => {
                                         const selectedHuman = humans.find(human => human.id.toString() === e.target.value);
                                         console.log(selectedHuman.id)
                                         setGovernor(selectedHuman);
-
-                                        // setCoordinate(e.target.value);
                                     }}
                                     onClick={() => getAllHumans()}
                             >
@@ -484,7 +453,6 @@ const CityCreator = () => {
                     Добавить город
                 </button>
             </div>
-        {error && <CustomError value={error} classname={classErr} isVisible={errorVisible}/>}
         </div>
     );
 };

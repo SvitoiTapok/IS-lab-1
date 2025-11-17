@@ -1,5 +1,5 @@
 import React, {useState, useMemo, useEffect} from 'react';
-import './humanCreator.css';
+import '../tables/humanCreator.css';
 import Long from 'long';
 import {
     flexRender,
@@ -8,7 +8,6 @@ import {
     getSortedRowModel,
     useReactTable
 } from "@tanstack/react-table";
-import CustomError from "../util/error";
 import "../util/pagination.css"
 import coordinatesService from "../services/CoordinatesService";
 import {DatePicker} from "antd";
@@ -16,6 +15,7 @@ import humanService from "../services/HumanService";
 import cityService from "../services/CityService";
 import {useLocation, useNavigate} from "react-router-dom";
 import {wait} from "@testing-library/user-event/dist/utils";
+import {useError} from "../util/ErrorContext";
 
 const climats = ["RAIN_FOREST",
     "TROPICAL_SAVANNA",
@@ -42,9 +42,7 @@ const CityModificator = () => {
     const [climate, setClimate] = useState(city?.climate || climats[0]);
     const [humans, setHumans] = useState([]);
     const [governor, setGovernor] = useState(city?.human || {});
-    const [error, setError] = useState('')
-    const [errorVisible, setErrorVisible] = useState(false);
-    const [classn, setClassname] = useState('error')
+    const { showError, showNotification } = useError();
 
     useEffect(() => {
         const initializeData = async () => {
@@ -74,19 +72,6 @@ const CityModificator = () => {
             </div>
         );
     }
-
-
-    const showError = (errorMessage) => {
-        setError(errorMessage);
-        if (errorVisible) {
-            return;
-        }
-        setErrorVisible(true);
-
-        setTimeout(() => {
-            setErrorVisible(false);
-        }, 3000);
-    };
     const switch_state = () => {
         setCapital(!capital);
     }
@@ -146,7 +131,7 @@ const CityModificator = () => {
     const getName = () => {
         const vname = name;
         if (vname.trim() === '') {
-            showError('Имя пользователя должно быть не пустой строкой')
+            showError('Название должно быть не пустой строкой')
             return null;
         }
         return vname
@@ -263,17 +248,12 @@ const CityModificator = () => {
         const data = validate()
         if (data == null) return null
         try {
-            console.log(data)
             await cityService.patchCity(city.id, {
                 name: data[0], coordinates: data[1], area: data[2],
                 population: data[3], establishmentDate: data[4], capital: data[5], metersAboveSeaLevel: data[6],
                 populationDensity: data[7], telephoneCode: data[8], climate: data[9], human: data[10]
             });
-            setClassname("notification")
-            setClassname("notification")
-            showError("Объект успешно обновлен")
-            await wait(1000)
-            await wait(1000).then(()=>        setClassname("error"))
+            showNotification("Город успешно обновлен")
         } catch (err) {
             showError(err.toString());
             return;
@@ -300,9 +280,7 @@ const CityModificator = () => {
                                 value={name}
                                 onChange={(e) => {
                                     setName(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -316,8 +294,6 @@ const CityModificator = () => {
                                     onChange={e => {
                                         const selectedCoord = coordinates.find(coord => coord.id === parseInt(e.target.value));
                                         setCoordinate(selectedCoord);
-
-                                        // setCoordinate(e.target.value);
                                     }}
                                     onClick={() => getAllCoords()}
                             >
@@ -339,9 +315,7 @@ const CityModificator = () => {
                                 value={area}
                                 onChange={(e) => {
                                     setArea(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -355,9 +329,7 @@ const CityModificator = () => {
                                 value={population}
                                 onChange={(e) => {
                                     setPopulation(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -398,9 +370,7 @@ const CityModificator = () => {
                                 value={metersAbove}
                                 onChange={(e) => {
                                     setMetersAbove(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -414,9 +384,7 @@ const CityModificator = () => {
                                 value={populationDensity}
                                 onChange={(e) => {
                                     setPopulationDensity(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -430,9 +398,7 @@ const CityModificator = () => {
                                 value={telephoneCode}
                                 onChange={(e) => {
                                     setTelephoneCode(e.target.value);
-                                    setError('');
-                                }
-                                }
+                                }}
                                 className="name-input"/>
                         </td>
                     </tr>
@@ -490,7 +456,6 @@ const CityModificator = () => {
                     Обновить город
                 </button>
             </div>
-            {error && <CustomError value={error} classname={classn} isVisible={errorVisible}/>}
         </div>
     );
 };

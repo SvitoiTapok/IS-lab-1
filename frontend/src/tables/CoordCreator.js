@@ -11,8 +11,15 @@ import CustomError from "../util/error";
 import "../util/pagination.css"
 import "./table.css"
 import coordinatesService from "../services/CoordinatesService";
+import {useError} from "../util/ErrorContext";
+import editIcon from "../imgs/edit-icon.png";
+import deleteIcon from "../imgs/delete-icon.png";
+import humanService from "../services/HumanService";
+import cityService from "../services/CityService";
+import {useNavigate} from "react-router-dom";
 
 const CoordCreator = () => {
+    const navigate = useNavigate();
     const [data, setData] = useState({
         content: [],
         totalElements: 0,
@@ -21,25 +28,17 @@ const CoordCreator = () => {
     const [x, setX] = useState('');
     const [y, setY] = useState('');
     const [sorting, setSorting] = useState([]);
-    const [error, setError] = useState('')
-    const [errorVisible, setErrorVisible] = useState(false)
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 3,
     });
+    const {showError, showNotification} = useError();
+    const [cityData, setCityData] = useState([])
+    const [curId, setCurId] = useState(0)
+    const [coords, setCoords] = useState([])
+    const [cityDataVisible, setCityDataVisible] = useState(false);
 
-    const showError = (errorMessage) => {
-        setError(errorMessage);
-        if (errorVisible) {
-            return;
-        }
-        setErrorVisible(true);
-
-        setTimeout(() => {
-            setErrorVisible(false);
-        }, 3000);
-    };
-    const callServer= async () => {
+    const callServer = async () => {
         let sortBy = 'id';
         let sortOrder = 'asc';
 
@@ -61,42 +60,97 @@ const CoordCreator = () => {
                 showError(err.toString());
             });
     }
+    const getAllCoords = async () => {
+        let sortBy = 'id';
+        let sortOrder = 'asc';
+
+
+        await coordinatesService.getAllCoordinates(
+            0,
+            10000000,
+            sortBy,
+            sortOrder
+        )
+            .then(data => {
+                setCoords(data.content);
+            })
+            .catch(err => {
+                showError(err.toString());
+            });
+    }
     useEffect(() => {
         callServer()
-        const intervalId = setInterval(callServer, 5000)
+        getAllCoords()
+        const intervalId = setInterval(()=>{callServer();getAllCoords()}, 5000)
 
         return () => clearInterval(intervalId);
     }, [pagination.pageIndex, pagination.pageSize, sorting]);
 
 
-    const addCoord =async () => {
-        const floatX = parseFloat(x.replace(',','.'));
-        if(isNaN(floatX)){
+    const addCoord = async () => {
+        const floatX = parseFloat(x.replace(',', '.'));
+        if (isNaN(floatX)) {
             showError('X должен быть корректным числом с плавающей запятой')
             return;
         }
-        const floatY = parseInt(y);
-        if(isNaN(floatY)){
+        const floatY = parseFloat(y.replace(',', '.'));
+        if (isNaN(floatY)) {
             showError('Y должен быть корректным числом')
             return;
         }
-        if(floatY<=-563){
+        if (floatY <= -563) {
             showError('Y должен быть больше -563')
             return;
         }
 
-        try{
+        try {
             await coordinatesService.addCoordinates({x: floatX, y: floatY});
             await callServer()
-        }catch(err){
+            showNotification("Координаты успешно добавлены")
+        } catch (err) {
             showError(err.toString());
             return;
         }
-        setError('');
         setX('');
         setY('');
 
     }
+    const coordsToString = (coord) => {
+        if (coord == null)
+            return ""
+        return 'id:' + coord.id + ' (' + coord.x + ', ' + coord.y + ')'
+    }
+    const handleDelete = async (coordId) => {
+        try {
+            coordinatesService.getCitiesByCoord(coordId).then(data => {
+                    if(data.length===0){
+                        coordinatesService.deleteCoord(coordId);
+                        showNotification('Координаты успешно удалены');
+                        setCityData([])
+                        setCityDataVisible(false)
+                        return;
+                    }
+                    setCurId(coordId)
+                    setCityData(data)
+                    setCityDataVisible(true)
+                }
+            ).catch(e =>
+                showError(e.message)
+            )
+            callServer();
+
+        } catch (err) {
+            showError('Ошибка при удалении города: ' + err.toString());
+        }
+    };
+
+    const handleEdit = (coord) => {
+        navigate('/edit-coord', {
+            state: {
+                coords: coord,
+            }
+        });
+    };
     const columns = useMemo(
         () => [
             {
@@ -114,8 +168,40 @@ const CoordCreator = () => {
                 accessorKey: 'y',
                 header: 'Y',
                 cell: info => info.getValue(),
-            }
-            ], []);
+            },
+            {
+                id: 'actions',
+                header: 'Действия',
+                cell: ({row}) => (
+                    <div className="flex space-x-2">
+                        <button
+                            onClick={() => handleEdit(row.original)}
+                            className="edit-button"
+                            title="Редактировать"
+                        >
+                            <img
+                                src={editIcon}
+                                alt="Edit"
+                                className="action-icon"
+                            />
+                        </button>
+                        <button
+                            onClick={() => handleDelete(row.original.id)}
+                            className="delete-button"
+                            title="Удалить"
+                        >
+                            <img
+                                src={deleteIcon}
+                                alt="Edit"
+                                className="action-icon"
+                            />
+                        </button>
+                    </div>
+                ),
+                enableSorting: false,
+            },
+
+        ], []);
     const table = useReactTable({
         data: data.content,
         columns,
@@ -143,18 +229,14 @@ const CoordCreator = () => {
                     value={x}
                     onChange={(e) => {
                         setX(e.target.value);
-                        setError('');
-                    }
-                    }
+                    }}
                     className="name-input"/>
                 <input
                     placeholder="Y"
                     value={y}
                     onChange={(e) => {
                         setY(e.target.value);
-                        setError('');
-                    }
-                    }
+                    }}
                     className="name-input"/>
                 <button onClick={() => {
                     addCoord()
@@ -179,8 +261,8 @@ const CoordCreator = () => {
                                     header.getContext()
                                 )}
 
-                            {header.column.getIsSorted() === 'asc' ? '↑' :
-                                header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
+                                {header.column.getIsSorted() === 'asc' ? '↑' :
+                                    header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
                             </th>
                         ))}
                     </tr>
@@ -198,8 +280,6 @@ const CoordCreator = () => {
                 ))}
                 </tbody>
             </table>
-            {error && <CustomError value={error} isVisible={errorVisible}/>
-            }
             {/*Пагинация*/}
             <div>
                 <button className="vectors"
@@ -244,6 +324,33 @@ const CoordCreator = () => {
                     </option>
                 ))}
             </select>
+            {cityDataVisible && <div className="creator">
+                В процессе попытки удаления Координат с id:{curId} возникли вопросы к зависимым городам, пожалуйста,
+                свяжите нижестоящие города с другими координатами
+                {cityData.map(city => {
+                    return (
+                        <div>
+                            ID города: {city.id}, координаты:
+                            <select className="pagination-selector"
+                                    value={city.coordinates.id}
+                                    onChange={e => {
+                                        city.coordinates = coords.find(coord => coord.id.toString() === e.target.value)
+                                        cityService.patchCity(city.id, city)
+                                    }}
+                                    onClick={() => getAllCoords()}
+                            >
+                                {coords.map(x => (
+                                    <option key={x.id} value={x.id}>
+                                        {coordsToString(x)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )
+
+                })}
+
+            </div>};
         </div>
 
     );

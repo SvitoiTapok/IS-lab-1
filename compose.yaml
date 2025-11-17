@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16
-    container_name: islab1-postgres  # Добавьте имя контейнера
+    container_name: islab1-postgres
     environment:
       POSTGRES_DB: myapp_db
       POSTGRES_USER: myapp_user
@@ -12,35 +10,34 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-#      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U myapp_user -d myapp_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - app-network  # Добавьте сеть
+      - app-network
 
   backend:
     build: .
-    container_name: islab1-backend  # Добавьте имя контейнера
+    container_name: islab1-backend
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/myapp_db  # ДОБАВЬТЕ ЭТО!
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/myapp_db
       - SPRING_DATASOURCE_USERNAME=myapp_user
       - SPRING_DATASOURCE_PASSWORD=myapp_password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
       postgres:
-        condition: service_healthy  # Ждем пока БД будет готова
+        condition: service_healthy
     networks:
-      - app-network  # Добавьте сеть
+      - app-network
 
   frontend:
     build: ./frontend
-    container_name: islab1-frontend  # Добавьте имя контейнера
+    container_name: islab1-frontend
     ports:
       - "3000:3000"
     volumes:
@@ -48,10 +45,26 @@ services:
     depends_on:
       - backend
     networks:
-      - app-network  # Добавьте сеть
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadminIS
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "ajsoi@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "1111"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin_config:/var/lib/pgadmin/pgadmin4
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+  pgadmin_data:
 
 networks:
   app-network:
