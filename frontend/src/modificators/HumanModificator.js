@@ -25,12 +25,11 @@ const climats = ["RAIN_FOREST",
 const HumanModificator = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const human = location.state?.human|| null;
-
+    const human = location.state?.human || null;
 
 
     const [name, setName] = useState(human?.name || '');
-    const { showError, showNotification } = useError();
+    const {showError, showNotification} = useError();
 
     if (!human) {
         return (

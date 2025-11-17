@@ -1,4 +1,5 @@
 package com.example.islab1.controllers;
+
 import com.example.islab1.DBApi.CitiesRepository;
 import com.example.islab1.DBApi.CoordinatesRepository;
 import com.example.islab1.DBApi.HumanRepository;
@@ -49,11 +50,12 @@ public class CoordinatesAPIController {
     public ResponseEntity<?> addCoordinates(@RequestBody Coordinates coordinates) {
         try {
             coordinatesRepository.save(coordinates);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
         return ResponseEntity.ok(coordinates);
     }
+
     @PatchMapping("/updateCoord/{id}")
     public ResponseEntity<?> updateCoord(
             @PathVariable Integer id,
@@ -75,6 +77,7 @@ public class CoordinatesAPIController {
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }
+
     @DeleteMapping("/deleteCoord/{id}")
     public ResponseEntity<?> deleteCoord(@PathVariable Integer id) {
         try {
@@ -87,11 +90,13 @@ public class CoordinatesAPIController {
             return ResponseEntity.status(400).body("Error deleting city: " + e.getMessage());
         }
     }
+
     @GetMapping("/getCitiesByCoordId")
     public ResponseEntity<?> getCitiesByCoordId(
             @RequestParam int id) {
         try {
-            Coordinates coordinates = coordinatesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Coord not found with id: " + id));;
+            Coordinates coordinates = coordinatesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Coord not found with id: " + id));
+            ;
 
             List<City> cities = cityRepository.findByCoordinates(coordinates);
             return ResponseEntity.ok(cities);

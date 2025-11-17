@@ -11,13 +11,12 @@ import coordService from "../services/CoordinatesService";
 const CoordsModificator = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const coords = location.state?.coords|| null;
-
+    const coords = location.state?.coords || null;
 
 
     const [x, setX] = useState(coords?.x.toString() || '');
     const [y, setY] = useState(coords?.y.toString() || '');
-    const { showError, showNotification } = useError();
+    const {showError, showNotification} = useError();
 
     if (!coords) {
         return (
@@ -30,20 +29,20 @@ const CoordsModificator = () => {
 
 
     const getX = () => {
-        const floatX = parseFloat(x.replace(',','.'));
-        if(isNaN(floatX)){
+        const floatX = parseFloat(x.replace(',', '.'));
+        if (isNaN(floatX)) {
             showError('X должен быть корректным числом с плавающей запятой')
             return null;
         }
         return x
     }
     const getY = () => {
-        const floatY = parseFloat(y.replace(',','.'));
-        if(isNaN(floatY)){
+        const floatY = parseFloat(y.replace(',', '.'));
+        if (isNaN(floatY)) {
             showError('Y должен быть корректным числом')
             return;
         }
-        if(floatY<=-563){
+        if (floatY <= -563) {
             showError('Y должен быть больше -563')
             return null;
         }
@@ -54,7 +53,7 @@ const CoordsModificator = () => {
     const updateCoords = async () => {
         const x = getX()
         const y = getY()
-        if (x == null || y==null) return null
+        if (x == null || y == null) return null
         try {
             await coordService.patchCoord(coords.id, {
                 x: x,

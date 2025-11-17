@@ -78,7 +78,10 @@ const HumanCreator = () => {
     useEffect(() => {
         callServer()
         getAllHumans()
-        const intervalId = setInterval(()=>{callServer(); getAllHumans()}, 5000);
+        const intervalId = setInterval(() => {
+            callServer();
+            getAllHumans()
+        }, 5000);
 
         return () => clearInterval(intervalId);
     }, [pagination.pageIndex, pagination.pageSize, sorting])
@@ -103,13 +106,13 @@ const HumanCreator = () => {
     const handleDelete = async (humanId) => {
         try {
             humanService.getCitiesByHuman(humanId).then(data => {
-                if(data.length===0){
-                    humanService.deleteHuman(humanId);
-                    showNotification('Человек успешно удален');
-                    setCityData([])
-                    setCityDataVisible(false)
-                    return;
-                }
+                    if (data.length === 0) {
+                        humanService.deleteHuman(humanId);
+                        showNotification('Человек успешно удален');
+                        setCityData([])
+                        setCityDataVisible(false)
+                        return;
+                    }
                     setCurId(humanId)
                     setCityData(data)
                     setCityDataVisible(true)

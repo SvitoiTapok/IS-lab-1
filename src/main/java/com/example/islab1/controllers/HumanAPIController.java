@@ -46,11 +46,12 @@ public class HumanAPIController {
     public ResponseEntity<?> addHuman(@RequestBody Human human) {
         try {
             humanRepository.save(human);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
         return ResponseEntity.ok(human);
     }
+
     @PatchMapping("/updateHuman/{id}")
     public ResponseEntity<?> updateHuman(
             @PathVariable Integer id,
@@ -69,6 +70,7 @@ public class HumanAPIController {
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }
+
     @DeleteMapping("/deleteHuman/{id}")
     public ResponseEntity<?> deleteHuman(@PathVariable Integer id) {
         try {
@@ -81,11 +83,13 @@ public class HumanAPIController {
             return ResponseEntity.status(400).body("Error deleting city: " + e.getMessage());
         }
     }
+
     @GetMapping("/getCitiesByHumanId")
     public ResponseEntity<?> getCitiesByHumanId(
             @RequestParam int id) {
         try {
-            Human human = humanRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Human not found with id: " + id));;
+            Human human = humanRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Human not found with id: " + id));
+            ;
             List<City> cities = cityRepository.findByHuman(human);
             return ResponseEntity.ok(cities);
         } catch (Exception e) {

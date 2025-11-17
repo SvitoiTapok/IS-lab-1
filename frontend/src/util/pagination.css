@@ -6,10 +6,12 @@
     cursor: pointer;
     border-radius: 4px;
 }
+
 .vectors:disabled {
     cursor: not-allowed;
     opacity: 0.4;
 }
+
 .page {
     padding: 8px 12px;
     font-size: 14px;

@@ -81,7 +81,10 @@ const CoordCreator = () => {
     useEffect(() => {
         callServer()
         getAllCoords()
-        const intervalId = setInterval(()=>{callServer();getAllCoords()}, 5000)
+        const intervalId = setInterval(() => {
+            callServer();
+            getAllCoords()
+        }, 5000)
 
         return () => clearInterval(intervalId);
     }, [pagination.pageIndex, pagination.pageSize, sorting]);
@@ -123,7 +126,7 @@ const CoordCreator = () => {
     const handleDelete = async (coordId) => {
         try {
             coordinatesService.getCitiesByCoord(coordId).then(data => {
-                    if(data.length===0){
+                    if (data.length === 0) {
                         coordinatesService.deleteCoord(coordId);
                         showNotification('Координаты успешно удалены');
                         setCityData([])

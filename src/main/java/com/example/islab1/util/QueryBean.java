@@ -93,11 +93,12 @@ public class QueryBean {
             return -1;
         }
     }
+
     private double calculateDistance(City fromCity, City toCity) {
         float x1 = fromCity.getCoordinates().getX();
         float y1 = fromCity.getCoordinates().getY();
         float x2 = toCity.getCoordinates().getX();
         float y2 = toCity.getCoordinates().getY();
-        return Math.pow(Math.pow(x1-x2, 2)+Math.pow(y1*1.0-y2*1.0, 2), 0.5);
+        return Math.pow(Math.pow(x1 - x2, 2) + Math.pow(y1 * 1.0 - y2 * 1.0, 2), 0.5);
     }
 }

@@ -21,7 +21,7 @@ const CustomError = () => {
     if (isVisible) return null;
     return (
         <div className={"error"}>
-            {type==="notification"?"NOTIFICATION":"ERROR!"}<br/><br/>
+            {type === "notification" ? "NOTIFICATION" : "ERROR!"}<br/><br/>
             {message}
         </div>
     );

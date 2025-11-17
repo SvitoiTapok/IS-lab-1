@@ -23,7 +23,7 @@ public class Human {
     private Integer id;
 
     @Column(name = "name",
-    columnDefinition = "TEXT NOT NULL CHECK (LENGTH(name) > 0)")
+            columnDefinition = "TEXT NOT NULL CHECK (LENGTH(name) > 0)")
     private String name; //Поле не может быть null, Строка не может быть пустой
     @OneToMany(mappedBy = "human")
     @JsonIgnore

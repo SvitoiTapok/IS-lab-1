@@ -16,54 +16,53 @@ import CoordsModificator from "./modificators/CoordsModificator";
 //import reportWebVitals from './reportWebVitals';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-
     <React.StrictMode>
 
         <ErrorProvider>
-        <BrowserRouter>
-            <nav className="navigation">
-                <NavLink
-                    to="/"
-                    className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
-                >
-                    Main
-                </NavLink>
-                <NavLink
-                    to="/human"
-                    className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
-                >
-                    Human
-                </NavLink>
-                <NavLink
-                    to="/coord"
-                    className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
-                >
-                    Coords
-                </NavLink>
-                <NavLink
-                    to="/city"
-                    className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
-                >
-                    Add New City
-                </NavLink>
-                <NavLink
-                    to="/query"
-                    className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
-                >
-                    Query
-                </NavLink>
-            </nav>
-            <Routes>
-                <Route path="/" element={<MainTable />} />
-                <Route path="/human" element={<HumanCreator />} />
-                <Route path="/coord" element={<CoordCreator />} />
-                <Route path="/city" element={<CityCreator />} />
-                <Route path="/edit-city" element={<CityModificator />} />
-                <Route path="/edit-human" element={<HumanModificator />} />
-                <Route path="/edit-coord" element={<CoordsModificator />} />
-                <Route path="/query" element={<QueryManager/>}/>
-            </Routes>
-        </BrowserRouter>
+            <BrowserRouter>
+                <nav className="navigation">
+                    <NavLink
+                        to="/"
+                        className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
+                    >
+                        Main
+                    </NavLink>
+                    <NavLink
+                        to="/human"
+                        className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
+                    >
+                        Human
+                    </NavLink>
+                    <NavLink
+                        to="/coord"
+                        className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
+                    >
+                        Coords
+                    </NavLink>
+                    <NavLink
+                        to="/city"
+                        className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
+                    >
+                        Add New City
+                    </NavLink>
+                    <NavLink
+                        to="/query"
+                        className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
+                    >
+                        Query
+                    </NavLink>
+                </nav>
+                <Routes>
+                    <Route path="/" element={<MainTable/>}/>
+                    <Route path="/human" element={<HumanCreator/>}/>
+                    <Route path="/coord" element={<CoordCreator/>}/>
+                    <Route path="/city" element={<CityCreator/>}/>
+                    <Route path="/edit-city" element={<CityModificator/>}/>
+                    <Route path="/edit-human" element={<HumanModificator/>}/>
+                    <Route path="/edit-coord" element={<CoordsModificator/>}/>
+                    <Route path="/query" element={<QueryManager/>}/>
+                </Routes>
+            </BrowserRouter>
         </ErrorProvider>
     </React.StrictMode>
 );

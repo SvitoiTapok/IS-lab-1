@@ -35,7 +35,7 @@ const MainTable = () => {
     const [nameFilter, setNameFilter] = useState('')
     const [climateFilter, setClimateFilter] = useState('')
     const [humanFilter, setHumanFilter] = useState('')
-    const { showError, showNotification } = useError();
+    const {showError, showNotification} = useError();
 
 
     const coordsToString = (coord) => {
@@ -288,8 +288,8 @@ const MainTable = () => {
                                     header.column.columnDef.header,
                                     header.getContext()
                                 )}
-                            {header.column.getIsSorted() === 'asc' ? '↑' :
-                                header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
+                                {header.column.getIsSorted() === 'asc' ? '↑' :
+                                    header.column.getIsSorted() === 'desc' ? '↓' : '↕'}
 
                             </th>
                         ))}

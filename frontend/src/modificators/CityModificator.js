@@ -25,8 +25,7 @@ const climats = ["RAIN_FOREST",
 const CityModificator = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const city = location.state?.city|| null;
-
+    const city = location.state?.city || null;
 
 
     const [name, setName] = useState(city?.name || '');
@@ -42,7 +41,7 @@ const CityModificator = () => {
     const [climate, setClimate] = useState(city?.climate || climats[0]);
     const [humans, setHumans] = useState([]);
     const [governor, setGovernor] = useState(city?.human || {});
-    const { showError, showNotification } = useError();
+    const {showError, showNotification} = useError();
 
     useEffect(() => {
         const initializeData = async () => {
@@ -74,8 +73,6 @@ const CityModificator = () => {
     const switch_state = () => {
         setCapital(!capital);
     }
-
-
 
 
     const coordsToString = (coord) => {
@@ -139,15 +136,14 @@ const CityModificator = () => {
         return coordinate;
     }
     const getArea = () => {
-        try{
+        try {
             const varea = BigInt(area);
             if (varea < 1) {
                 showError('Площадь должна числом быть больше нуля')
                 return null;
             }
             return varea.toString()
-        }
-        catch (e) {
+        } catch (e) {
             showError('Площадь должна быть натуральным числом')
             return null;
         }
@@ -166,7 +162,7 @@ const CityModificator = () => {
         return vpopulation
     }
     const getEstablishementDate = () => {
-        if(date==null){
+        if (date == null) {
             showError('Выберите дату')
             return null;
         }
@@ -192,7 +188,7 @@ const CityModificator = () => {
                 return null;
             }
             return vpopulationDensity.toString()
-        }catch (e) {
+        } catch (e) {
             showError('Плотность населения должна быть натуральным числом')
             return null;
         }

@@ -15,6 +15,7 @@
     margin-bottom: 20px;
     color: #333;
 }
+
 .p-3 span {
     font-size: 16px;
     color: black;
@@ -59,7 +60,8 @@
     box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
     white-space: nowrap;
 }
-.create-button-coord{
+
+.create-button-coord {
     padding: 12px 24px;
     font-size: 16px;
     font-weight: 600;
@@ -72,6 +74,7 @@
     box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
     white-space: nowrap;
 }
+
 .create-button-negative {
     padding: 12px 24px;
     font-size: 16px;
@@ -84,9 +87,11 @@
     transition: all 0.3s ease;
     white-space: nowrap;
 }
-.ml-1{
-    color:green;
+
+.ml-1 {
+    color: green;
 }
+
 #city_creator {
     min-width: 1600px;
 }

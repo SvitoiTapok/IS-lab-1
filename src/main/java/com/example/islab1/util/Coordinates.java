@@ -26,7 +26,7 @@ public class Coordinates {
     @NotNull
     private Float x;
     @Column(name = "y",
-    columnDefinition = "REAL CHECK(y>-563)")
+            columnDefinition = "REAL CHECK(y>-563)")
     private float y; //Значение поля должно быть больше -563
     @OneToMany(mappedBy = "coordinates")
     @JsonIgnore

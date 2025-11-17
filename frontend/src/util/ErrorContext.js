@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, {createContext, useContext, useState} from 'react';
 
 const ErrorContext = createContext();
 
-export const ErrorProvider = ({ children }) => {
+export const ErrorProvider = ({children}) => {
     const [errors, setErrors] = useState([]);
 
     const showError = (message) => {
@@ -32,18 +32,18 @@ export const ErrorProvider = ({ children }) => {
                 right: '20px',
                 zIndex: 1000
             }}>
-                {errors.map((error)=> (
+                {errors.map((error) => (
                         <div style={{
                             marginLeft: '10px',
                             color: 'white',
                             padding: '15px',
                             borderRadius: '5px',
-                            background: error.type === "err"?"red":"green",
+                            background: error.type === "err" ? "red" : "green",
                             cursor: 'pointer'
                         }}>
                             {error.message}
                             <button
-                                onClick={()=> hideError(error.id)}
+                                onClick={() => hideError(error.id)}
                                 style={{marginLeft: '10px', background: 'white', border: 'none'}}
                             >
                                 ×

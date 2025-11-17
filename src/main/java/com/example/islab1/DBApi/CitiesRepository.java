@@ -10,5 +10,6 @@ import java.util.List;
 
 public interface CitiesRepository extends JpaRepository<City, Long>, JpaSpecificationExecutor<City> {
     List<City> findByHuman(Human human);
+
     List<City> findByCoordinates(Coordinates coordinates);
 }
