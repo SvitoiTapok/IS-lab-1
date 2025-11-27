@@ -38,7 +38,7 @@ public class HumanAPIController {
             Page<Human> humans = humanRepository.findAll(pageable);
             return ResponseEntity.ok(humans);
         } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 
@@ -47,7 +47,7 @@ public class HumanAPIController {
         try {
             humanRepository.save(human);
         } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
         return ResponseEntity.ok(human);
     }
@@ -58,7 +58,7 @@ public class HumanAPIController {
             @RequestBody Human updatedHuman) {
         try {
             Human human = humanRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Human not found with id: " + id));
+                    .orElseThrow(() -> new EntityNotFoundException("Не найден человек с id: " + id));
             if (human.getName() != null) {
                 human.setName(updatedHuman.getName());
             }
@@ -66,8 +66,10 @@ public class HumanAPIController {
             Human savedHuman = humanRepository.save(human);
             return ResponseEntity.ok(savedHuman);
 
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e){
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 
@@ -75,12 +77,14 @@ public class HumanAPIController {
     public ResponseEntity<?> deleteHuman(@PathVariable Integer id) {
         try {
             if (!humanRepository.existsById(id)) {
-                return ResponseEntity.status(404).body("City not found with id: " + id);
+                return ResponseEntity.status(404).body("Не найден человек с id: " + id);
             }
             humanRepository.deleteById(id);
             return ResponseEntity.ok().body("City deleted successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error deleting city: " + e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e){
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 
@@ -88,12 +92,14 @@ public class HumanAPIController {
     public ResponseEntity<?> getCitiesByHumanId(
             @RequestParam int id) {
         try {
-            Human human = humanRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Human not found with id: " + id));
+            Human human = humanRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Не найден человек с id: " + id));
             ;
             List<City> cities = cityRepository.findByHuman(human);
             return ResponseEntity.ok(cities);
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e){
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 

@@ -19,7 +19,7 @@ export const ErrorProvider = ({children}) => {
         console.log(message)
     };
     const hideError = (id) =>
-        setErrors(errors => errors.filter(e => e.id != id));
+        setErrors(errors => errors.filter(e => e.id !== id));
 
 
     return (

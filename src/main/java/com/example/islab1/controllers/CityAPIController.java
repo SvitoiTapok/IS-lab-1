@@ -30,7 +30,7 @@ public class CityAPIController {
 
 
     @GetMapping("/getCities")
-    public ResponseEntity<Page<City>> getCity(
+    public ResponseEntity<?> getCity(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "3") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -50,8 +50,7 @@ public class CityAPIController {
             Page<City> cities = citiesRepository.findAll(spec, pageable);
             return ResponseEntity.ok(cities);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(400).body(null);
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 
@@ -60,10 +59,10 @@ public class CityAPIController {
         try {
             citiesRepository.save(city);
         } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
         return ResponseEntity.ok(city);
-    }
+}
 
     @PatchMapping("/updateCity/{id}")
     public ResponseEntity<?> updateCity(
@@ -71,7 +70,7 @@ public class CityAPIController {
             @RequestBody City updatedCity) {
         try {
             City existingCity = citiesRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("City not found with id: " + id));
+                    .orElseThrow(() -> new EntityNotFoundException("Не найден город с id: " + id));
             if (updatedCity.getName() != null) {
                 existingCity.setName(updatedCity.getName());
             }
@@ -109,8 +108,10 @@ public class CityAPIController {
             City savedCity = citiesRepository.save(existingCity);
             return ResponseEntity.ok(savedCity);
 
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 
@@ -118,12 +119,12 @@ public class CityAPIController {
     public ResponseEntity<?> deleteCity(@PathVariable Long id) {
         try {
             if (!citiesRepository.existsById(id)) {
-                return ResponseEntity.status(404).body("City not found with id: " + id);
+                return ResponseEntity.status(404).body("не найден город с id: " + id);
             }
             citiesRepository.deleteById(id);
             return ResponseEntity.ok().body("City deleted successfully");
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error deleting city: " + e.getMessage());
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 

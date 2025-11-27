@@ -130,6 +130,10 @@ const CityCreator = () => {
         return vname
     }
     const getCoords = () => {
+        if(coordinate.id===0){
+            showError("Добавьте координаты!")
+            return null
+        }
         return coordinate;
     }
     const getArea = () => {
@@ -207,11 +211,16 @@ const CityCreator = () => {
         return climate
     }
     const getGovernor = () => {
+        if(governor.id===0){
+            showError("Добавьте людей!")
+            return null
+        }
         return governor;
     }
 
 
     const validate = () => {
+
         const vname = getName()
         if (vname == null) return null
         const vcoords = getCoords()
@@ -321,7 +330,7 @@ const CityCreator = () => {
                     </tr>
                     <tr>
                         <td>
-                            Популяция:
+                            Население:
                         </td>
                         <td>
                             <input

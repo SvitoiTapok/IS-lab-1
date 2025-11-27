@@ -127,8 +127,9 @@ const CoordCreator = () => {
         try {
             coordinatesService.getCitiesByCoord(coordId).then(data => {
                     if (data.length === 0) {
-                        coordinatesService.deleteCoord(coordId);
+                        coordinatesService.deleteCoord(coordId).then(()=>callServer());
                         showNotification('Координаты успешно удалены');
+
                         setCityData([])
                         setCityDataVisible(false)
                         return;
@@ -136,11 +137,12 @@ const CoordCreator = () => {
                     setCurId(coordId)
                     setCityData(data)
                     setCityDataVisible(true)
+
                 }
             ).catch(e =>
                 showError(e.message)
             )
-            callServer();
+
 
         } catch (err) {
             showError('Ошибка при удалении города: ' + err.toString());
@@ -160,17 +162,20 @@ const CoordCreator = () => {
                 accessorKey: 'id',
                 header: 'ID',
                 cell: info => parseInt(info.getValue()),
+                enableSorting: true,
             },
             {
                 accessorKey: 'x',
                 header: 'X',
                 cell: info => info.getValue(),
+                enableSorting: true,
 
             },
             {
                 accessorKey: 'y',
                 header: 'Y',
                 cell: info => info.getValue(),
+                enableSorting: true,
             },
             {
                 id: 'actions',

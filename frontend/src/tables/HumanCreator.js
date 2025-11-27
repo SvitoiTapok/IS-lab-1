@@ -35,6 +35,11 @@ const HumanCreator = () => {
     const [humans, setHumans] = useState([])
     const [cityDataVisible, setCityDataVisible] = useState(false);
 
+    const [selectorHumans, setSelectorHumans] = useState([]);
+    const [selectorPage, setSelectorPage] = useState(0);
+    const [selectorHasMore, setSelectorHasMore] = useState(true);
+    const selectorPageSize = 30;
+
     const callServer = async () => {
         let sortBy = 'id';
         let sortOrder = 'asc';
@@ -57,30 +62,38 @@ const HumanCreator = () => {
                 showError(err.toString());
             });
     }
-    const getAllHumans = async () => {
-        let sortBy = 'id';
-        let sortOrder = 'asc';
+    const loadMoreSelectorHumans = async () => {
+        if (!selectorHasMore) return;
+
+        try {
+            const data = humanService.getHumans(
+                selectorPage,
+                selectorPageSize,
+                "id",
+                "asc"
+            ).then((data) => {
+                    console.log(data.content)
+                    setSelectorHumans(prev => [...prev, ...data.content]);
+
+                    if (selectorPage + 1 >= data.totalPages) {
+                        setSelectorHasMore(false);
+                    } else {
+                        setSelectorPage(prev => prev + 1);
+                    }
+                }
+            )
 
 
-        await humanService.getHumans(
-            0,
-            10000000,
-            sortBy,
-            sortOrder
-        )
-            .then(data => {
-                setHumans(data.content);
-            })
-            .catch(err => {
-                showError(err.toString());
-            });
-    }
+        } catch (e) {
+            showError(e.toString());
+        }
+    };
     useEffect(() => {
         callServer()
-        getAllHumans()
+        // getAllHumans()
         const intervalId = setInterval(() => {
             callServer();
-            getAllHumans()
+            // getAllHumans()
         }, 5000);
 
         return () => clearInterval(intervalId);
@@ -107,7 +120,7 @@ const HumanCreator = () => {
         try {
             humanService.getCitiesByHuman(humanId).then(data => {
                     if (data.length === 0) {
-                        humanService.deleteHuman(humanId);
+                        humanService.deleteHuman(humanId).then(() => callServer());
                         showNotification('Человек успешно удален');
                         setCityData([])
                         setCityDataVisible(false)
@@ -116,6 +129,11 @@ const HumanCreator = () => {
                     setCurId(humanId)
                     setCityData(data)
                     setCityDataVisible(true)
+
+                    setSelectorHumans([]);
+                    setSelectorPage(0);
+                    setSelectorHasMore(true);
+                    loadMoreSelectorHumans();
                 }
             ).catch(e =>
                 showError(e.message)
@@ -140,11 +158,13 @@ const HumanCreator = () => {
                 accessorKey: 'id',
                 header: 'ID',
                 cell: info => parseInt(info.getValue()),
+                enableSorting: true,
             },
             {
                 accessorKey: 'name',
                 header: 'Name',
                 cell: info => info.getValue(),
+                enableSorting: true,
             },
             {
                 id: 'actions',
@@ -311,12 +331,19 @@ const HumanCreator = () => {
                             <select className="pagination-selector"
                                     value={city.human.id}
                                     onChange={e => {
-                                        city.human = humans.find(human => human.id.toString() === e.target.value)
+                                        city.human = selectorHumans.find(human => human.id.toString() === e.target.value)
                                         cityService.patchCity(city.id, city)
                                     }}
-                                    onClick={() => getAllHumans()}
+                                    // onScroll={(e) => {
+                                    //     console.log("adfasdfasdfasdfasd")
+                                    //     const bottom =
+                                    //         e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight - 20;
+                                    //
+                                    //     if (bottom) loadMoreSelectorHumans();
+                                    //
+                                    // }}
                             >
-                                {humans.map(x => (
+                                {selectorHumans.map(x => (
                                     <option key={x.id} value={x.id}>
                                         {(x.name)}
                                     </option>

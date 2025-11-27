@@ -43,12 +43,12 @@ const QueryManager = () => {
                         "", "", "", ""
                     )
                 ]);
+                if (!cityData.content.length) return;
                 setCities(cityData.content.map(x => {
                     return {id: x.id, name: x.name}
                 }))
                 setCity1({id: cityData.content[0].id, name: cityData.content[0].name});
                 setCity2({id: cityData.content[0].id, name: cityData.content[0].name});
-                console.log({id: cityData.content[0].id, name: cityData.content[0].name})
             } catch (err) {
                 showError(err.toString());
             }
@@ -153,6 +153,10 @@ const QueryManager = () => {
     }
     const getDistBU = async () => {
         try {
+            if(city1.name===""){
+                showError("Добавьте города!")
+                return;
+            }
             await queryService.calculateRoute(city1.id, city2.id).then(data => {
                     console.log(data);
                     setResponse(data + "$")
@@ -166,6 +170,10 @@ const QueryManager = () => {
     }
     const getDistBM = async () => {
         try {
+            if(city1.name===""){
+                showError("Добавьте города!")
+                return;
+            }
             await queryService.calculateMaxMinPopulationRoute().then(data => {
                     console.log(data);
                     setResponse(data + "$")

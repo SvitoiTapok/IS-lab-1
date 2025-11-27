@@ -42,7 +42,7 @@ public class CoordinatesAPIController {
             Page<Coordinates> coordinates = coordinatesRepository.findAll(pageable);
             return ResponseEntity.ok(coordinates);
         } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 
@@ -51,7 +51,7 @@ public class CoordinatesAPIController {
         try {
             coordinatesRepository.save(coordinates);
         } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
         return ResponseEntity.ok(coordinates);
     }
@@ -62,7 +62,7 @@ public class CoordinatesAPIController {
             @RequestBody Coordinates updatedCoordinates) {
         try {
             Coordinates coordinates = coordinatesRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Coordinates not found with id: " + id));
+                    .orElseThrow(() -> new EntityNotFoundException("Не найдены координаты с id: " + id));
             if (updatedCoordinates.getX() != null) {
                 coordinates.setX(updatedCoordinates.getX());
             }
@@ -73,8 +73,10 @@ public class CoordinatesAPIController {
             Coordinates savedCoord = coordinatesRepository.save(coordinates);
             return ResponseEntity.ok(savedCoord);
 
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e){
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 
@@ -82,12 +84,12 @@ public class CoordinatesAPIController {
     public ResponseEntity<?> deleteCoord(@PathVariable Integer id) {
         try {
             if (!coordinatesRepository.existsById(id)) {
-                return ResponseEntity.status(404).body("City not found with id: " + id);
+                return ResponseEntity.status(404).body("Не найдены координаты с id: " + id);
             }
             coordinatesRepository.deleteById(id);
             return ResponseEntity.ok().body("City deleted successfully");
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error deleting city: " + e.getMessage());
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 
@@ -95,13 +97,15 @@ public class CoordinatesAPIController {
     public ResponseEntity<?> getCitiesByCoordId(
             @RequestParam int id) {
         try {
-            Coordinates coordinates = coordinatesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Coord not found with id: " + id));
+            Coordinates coordinates = coordinatesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Не найдены координаты с id: " + id));
             ;
 
             List<City> cities = cityRepository.findByCoordinates(coordinates);
             return ResponseEntity.ok(cities);
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e){
+            return ResponseEntity.status(400).body("Некорректные данные");
         }
     }
 }
