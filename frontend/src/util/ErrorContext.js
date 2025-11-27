@@ -5,21 +5,22 @@ const ErrorContext = createContext();
 export const ErrorProvider = ({children}) => {
     const [errors, setErrors] = useState([]);
 
-    const showError = (message) => {
+    const showError = async (message) => {
         const id = Date.now()
         const type = "err"
         setErrors([...errors, {id, message, type}]);
-        setTimeout(() => hideError(id), 5000);
+        setTimeout(() => hideError(), 3005);
     };
-    const showNotification = (message) => {
+    const showNotification = async (message) => {
         const id = Date.now()
         const type = "notif"
         setErrors([...errors, {id, message, type}]);
-        setTimeout(() => hideError(id), 3000);
-        console.log(message)
+        setTimeout(() => hideError(), 3005);
     };
-    const hideError = (id) =>
-        setErrors(errors => errors.filter(e => e.id !== id));
+    const hideError = async () =>{
+        setErrors(errors => errors.filter(e => { return Date.now() - e.id < 3000}));
+    }
+
 
 
     return (
@@ -35,12 +36,15 @@ export const ErrorProvider = ({children}) => {
                 {errors.map((error) => (
                         <div style={{
                             marginLeft: '10px',
+                            marginBottom: '10px',
                             color: 'white',
                             padding: '15px',
                             borderRadius: '5px',
                             background: error.type === "err" ? "red" : "green",
                             cursor: 'pointer'
-                        }}>
+
+                        }}
+                             key={error.id}>
                             {error.message}
                             <button
                                 onClick={() => hideError(error.id)}

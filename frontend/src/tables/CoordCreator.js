@@ -7,7 +7,6 @@ import {
     getSortedRowModel,
     useReactTable
 } from "@tanstack/react-table";
-import CustomError from "../util/error";
 import "../util/pagination.css"
 import "./table.css"
 import coordinatesService from "../services/CoordinatesService";

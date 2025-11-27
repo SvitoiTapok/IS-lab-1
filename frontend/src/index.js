@@ -9,10 +9,10 @@ import './util/navigation.css'
 import CityCreator from "./tables/CityCreator";
 import CityModificator from "./modificators/CityModificator";
 import QueryManager from "./tables/QueryManager";
-import CustomError from "./util/error";
 import {ErrorProvider} from "./util/ErrorContext";
 import HumanModificator from "./modificators/HumanModificator";
 import CoordsModificator from "./modificators/CoordsModificator";
+import TestComponent from "./util/TestComponent";
 //import reportWebVitals from './reportWebVitals';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -51,6 +51,12 @@ root.render(
                     >
                         Query
                     </NavLink>
+                    <NavLink
+                        to="/test"
+                        className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
+                    >
+                        Test
+                    </NavLink>
                 </nav>
                 <Routes>
                     <Route path="/" element={<MainTable/>}/>
@@ -61,6 +67,8 @@ root.render(
                     <Route path="/edit-human" element={<HumanModificator/>}/>
                     <Route path="/edit-coord" element={<CoordsModificator/>}/>
                     <Route path="/query" element={<QueryManager/>}/>
+                    {/*под коммент*/}
+                    <Route path="/test" element={<TestComponent/>}/>
                 </Routes>
             </BrowserRouter>
         </ErrorProvider>

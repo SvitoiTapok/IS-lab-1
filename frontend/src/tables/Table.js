@@ -12,7 +12,6 @@ import './table.css';
 import '../util/pagination.css';
 import coordinatesService from "../services/CoordinatesService";
 import cityService from "../services/CityService";
-import CustomError from "../util/error";
 import cityCreator from "./CityCreator";
 import editIcon from '../imgs/edit-icon.png';
 import deleteIcon from '../imgs/delete-icon.png';
