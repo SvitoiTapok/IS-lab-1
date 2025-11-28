@@ -51,12 +51,12 @@ root.render(
                     >
                         Query
                     </NavLink>
-                    <NavLink
-                        to="/test"
-                        className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
-                    >
-                        Test
-                    </NavLink>
+                    {/*<NavLink*/}
+                    {/*    to="/test"*/}
+                    {/*    className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}*/}
+                    {/*>*/}
+                    {/*    Test*/}
+                    {/*</NavLink>*/}
                 </nav>
                 <Routes>
                     <Route path="/" element={<MainTable/>}/>
@@ -68,7 +68,7 @@ root.render(
                     <Route path="/edit-coord" element={<CoordsModificator/>}/>
                     <Route path="/query" element={<QueryManager/>}/>
                     {/*под коммент*/}
-                    <Route path="/test" element={<TestComponent/>}/>
+                    {/*<Route path="/test" element={<TestComponent/>}/>*/}
                 </Routes>
             </BrowserRouter>
         </ErrorProvider>

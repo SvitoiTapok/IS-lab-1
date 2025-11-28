@@ -172,7 +172,7 @@ const HumanCreator = () => {
                 (entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting && entry.target.getAttribute('data-last-item') === 'true') {
-                            setIsLastItemVisible(true);
+                            setTimeout(()=> setIsLastItemVisible(true), 100)
 
                             const currentScrollPos = selectRef.current.scrollTop;
                             saveScrollPosition(city.id, currentScrollPos);
@@ -206,9 +206,8 @@ const HumanCreator = () => {
                     observerRef.current.disconnect();
                 }
             }
-        }, [selectorHasMore, city.id]); // Добавляем city.id в зависимости
+        }, [selectorHasMore, city.id]);
 
-        // Обработчик скролла для сохранения позиции в реальном времени
         const handleScroll = () => {
             if (selectRef.current) {
                 const currentScrollPos = selectRef.current.scrollTop;
@@ -249,7 +248,7 @@ const HumanCreator = () => {
                         marginLeft: '10px'
                     }}
                     onChange={handleHumanChange}
-                    onScroll={handleScroll} // Сохраняем позицию при любом скролле
+                    // onScroll={handleScroll}
                 >
                     {selectorHumans.map((x, index) => (
                         <option
