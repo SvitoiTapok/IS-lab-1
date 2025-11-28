@@ -15,7 +15,6 @@ import editIcon from "../imgs/edit-icon.png";
 import deleteIcon from "../imgs/delete-icon.png";
 import {useNavigate} from "react-router-dom";
 import cityService from "../services/CityService";
-import {wait} from "@testing-library/user-event/dist/utils";
 
 const HumanCreator = () => {
     const navigate = useNavigate();
@@ -33,16 +32,16 @@ const HumanCreator = () => {
     const {showError, showNotification} = useError();
     const [cityData, setCityData] = useState([])
     const [curId, setCurId] = useState(0)
-    const [humans, setHumans] = useState([])
     const [cityDataVisible, setCityDataVisible] = useState(false);
 
     const [selectorHumans, setSelectorHumans] = useState([]);
     const [selectorPage, setSelectorPage] = useState(0);
     const [selectorHasMore, setSelectorHasMore] = useState(true);
 
+
+    const scrollPositionsRef = useRef(new Map());
+
     const selectorPageSize = 20
-    const [scrollPos, setScrollPos] = useState(0)
-    // const [observers, setObservers] = useState([])
 
     const callServer = async () => {
         let sortBy = 'id';
@@ -70,35 +69,26 @@ const HumanCreator = () => {
     const loadMoreSelectorHumans = async () => {
         if (!selectorHasMore) return;
         try {
-
-            const data = humanService.getHumans(
+            const data = await humanService.getHumans(
                 selectorPage,
                 selectorPageSize,
                 "id",
                 "asc"
-            ).then((data) => {
-                    console.log(data.content)
-                    setSelectorHumans(prev => [...prev, ...data.content]);
-                    if (selectorPage + 1 >= data.totalPages) {
-                        setSelectorHasMore(false);
-                    } else {
-                        setSelectorPage(prev => prev + 1);
-                    }
-                }
-            )
+            );
+            console.log(data.content)
+            setSelectorHumans(prev => [...prev, ...data.content]);
+            if (selectorPage + 1 >= data.totalPages) {
+                setSelectorHasMore(false);
+            } else {
+                setSelectorPage(prev => prev + 1);
+            }
         } catch (e) {
             showError(e.toString());
         }
     };
+
     useEffect(() => {
         callServer()
-        // getAllHumans()
-        // const intervalId = setInterval(() => {
-        //     callServer();
-        //     // getAllHumans()
-        // }, 5000);
-        //
-        // return () => clearInterval(intervalId);
     }, [pagination.pageIndex, pagination.pageSize, sorting])
 
     const addHuman = async () => {
@@ -154,6 +144,137 @@ const HumanCreator = () => {
             }
         });
     };
+
+    const saveScrollPosition = (cityId, position) => {
+        scrollPositionsRef.current.set(cityId, position);
+    };
+
+    const getScrollPosition = (cityId) => {
+        return scrollPositionsRef.current.get(cityId) || 0;
+    };
+
+    const SelectWithObserver = ({city}) => {
+        const selectRef = useRef(null);
+        const [isLastItemVisible, setIsLastItemVisible] = useState(false);
+        const observerRef = useRef(null);
+
+        useEffect(() => {
+            const savedScrollPos = getScrollPosition(city.id);
+            if (selectRef.current && savedScrollPos > 0) {
+                selectRef.current.scrollTop = savedScrollPos;
+            }
+
+            if (!selectRef.current || !selectorHasMore) return;
+
+            console.log("Setting up observer for city:", city.id);
+
+            observerRef.current = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && entry.target.getAttribute('data-last-item') === 'true') {
+                            setIsLastItemVisible(true);
+
+                            const currentScrollPos = selectRef.current.scrollTop;
+                            saveScrollPosition(city.id, currentScrollPos);
+                            console.log(`Saving scroll position for city ${city.id}: ${currentScrollPos}`);
+
+                            loadMoreSelectorHumans().then(() => {
+                                const restoredScrollPos = getScrollPosition(city.id);
+                                if (selectRef.current) {
+                                    selectRef.current.scrollTop = restoredScrollPos-50;
+                            }})
+                        } else if (!entry.isIntersecting && entry.target.getAttribute('data-last-item') === 'true') {
+                            setIsLastItemVisible(false);
+                        }
+                    });
+                },
+                {
+                    root: selectRef.current,
+                    threshold: 0.8,
+                    rootMargin: '10px'
+                }
+            );
+
+            const options = selectRef.current.querySelectorAll('option');
+            if (options.length > 0) {
+                const lastOption = options[options.length - 1];
+                observerRef.current.observe(lastOption);
+            }
+
+            return () => {
+                if (observerRef.current) {
+                    observerRef.current.disconnect();
+                }
+            }
+        }, [selectorHasMore, city.id]); // Добавляем city.id в зависимости
+
+        // Обработчик скролла для сохранения позиции в реальном времени
+        const handleScroll = () => {
+            if (selectRef.current) {
+                const currentScrollPos = selectRef.current.scrollTop;
+                saveScrollPosition(city.id, currentScrollPos);
+            }
+        };
+
+        const handleHumanChange = (e) => {
+            const selectedHuman = selectorHumans.find(human => human.id.toString() === e.target.value);
+            if (selectedHuman) {
+                const updatedCity = {...city, human: selectedHuman};
+                cityService.patchCity(city.id, updatedCity)
+                    .then(() => showNotification(`Город с id ${city.id} теперь привязан к ${selectedHuman.name}`))
+                    .catch(err => showError(err.toString()));
+            }
+        };
+
+        return (
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '15px'
+            }}>
+                ID города: {city.id}, губернатор:
+                <select
+                    ref={selectRef}
+                    className="pagination-selector"
+                    value={city.human.id}
+                    size={3}
+                    style={{
+                        width: '200px',
+                        height: '100px',
+                        padding: '8px',
+                        border: '2px solid #000',
+                        borderRadius: '4px',
+                        backgroundColor: 'white',
+                        fontSize: '14px',
+                        marginLeft: '10px'
+                    }}
+                    onChange={handleHumanChange}
+                    onScroll={handleScroll} // Сохраняем позицию при любом скролле
+                >
+                    {selectorHumans.map((x, index) => (
+                        <option
+                            key={x.id}
+                            value={x.id}
+                            data-last-item={index === selectorHumans.length - 1 ? "true" : "false"}
+                        >
+                            {x.name} (ID: {x.id})
+                        </option>
+                    ))}
+                </select>
+                {isLastItemVisible && (
+                    <span style={{
+                        marginLeft: '10px',
+                        fontSize: '12px',
+                        color: '#007bff',
+                        fontStyle: 'italic'
+                    }}>
+                        Загрузка следующих элементов...
+                    </span>
+                )}
+            </div>
+        );
+    };
+
     const columns = useMemo(
         () => [
             {
@@ -199,8 +320,8 @@ const HumanCreator = () => {
                 ),
                 enableSorting: false,
             },
-
         ], []);
+
     const table = useReactTable({
         data: data.content,
         columns,
@@ -217,12 +338,10 @@ const HumanCreator = () => {
         manualPagination: true,
         pageCount: data.totalPages || 0,
     });
+
     return (
         <div className="creator">
-
-            <span>
-                Люди
-            </span>
+            <span>Люди</span>
             <div className="input-group">
                 <input
                     placeholder="Имя человека"
@@ -231,7 +350,6 @@ const HumanCreator = () => {
                         setName(e.target.value);
                     }}
                     onKeyPress={(e) => {
-
                         if (e.key === 'Enter') {
                             addHuman();
                         }
@@ -307,7 +425,7 @@ const HumanCreator = () => {
                 </button>
             </div>
             <span className="page">
-                    Страница{' '}
+                Страница{' '}
                 {table.getState().pagination.pageIndex + 1} из {table.getPageCount()}
             </span>
 
@@ -323,114 +441,18 @@ const HumanCreator = () => {
                     </option>
                 ))}
             </select>
-            {cityDataVisible && <div className="creator">
-                В процессе попытки удаления Человека с id:{curId} возникли вопросы к зависимым городам, пожалуйста,
-                свяжите нижестоящие города с другими людьми
-                {cityData.map((city, cityIndex) => {
-                    const SelectWithObserver = ({city}) => {
-                        const selectRef = useRef(null);
-                        const [isLastItemVisible, setIsLastItemVisible] = useState(false);
 
-                        useEffect(() => {
-                            selectRef.current.scrollTop = scrollPos-50
-                            if (!selectRef.current||!selectorHasMore) return;
-
-                            console.log("wth")
-                            const observer = new IntersectionObserver(
-                                (entries) => {
-                                    entries.forEach(entry => {
-                                        if (entry.isIntersecting && entry.target.getAttribute('data-last-item') === 'true') {
-                                            setIsLastItemVisible(true);
-                                            setScrollPos(selectRef.current.scrollTop)
-
-                                            loadMoreSelectorHumans().then(() => {
-                                                    if (selectRef.current) {
-                                                        selectRef.current.scrollTop = scrollPos
-                                                        console.log(scrollPos)
-                                                    }
-                                                }
-                                            )
-                                        } else if (!entry.isIntersecting && entry.target.getAttribute('data-last-item') === 'true') {
-                                            setIsLastItemVisible(false);
-                                        }
-                                    });
-                                },
-                                {
-                                    root: selectRef.current,
-                                    threshold: 0.8,
-                                    rootMargin: '10px'
-                                }
-                            );
-
-                            const options = selectRef.current.querySelectorAll('option');
-                            if (options.length > 0) {
-                                const lastOption = options[options.length - 1];
-                                observer.observe(lastOption);
-                            }
-
-                            return () => {
-                                observer.disconnect();
-                            }
-
-                        }, []);
-
-
-                        return (
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                            }}>
-                                ID города: {city.id}, губернатор:
-                                <select
-                                    ref={selectRef}
-                                    className="pagination-selector"
-                                    value={city.human.id}
-                                    size={3}
-                                    style={{
-                                        width: '200px',
-                                        height: '100px',
-                                        padding: '8px',
-                                        border: '2px solid #000',
-                                        borderRadius: '4px',
-                                        backgroundColor: 'white',
-                                        fontSize: '14px'
-                                    }}
-                                    onChange={e => {
-                                        city.human = selectorHumans.find(human => human.id.toString() === e.target.value);
-                                        cityService.patchCity(city.id, city).then(showNotification("Город с id " + city.id + " теперь привязан к " + city.human.name));
-                                    }}
-                                >
-                                    {selectorHumans.map((x, index) => (
-                                        <option
-                                            key={x.id}
-                                            value={x.id}
-                                            data-last-item={index === selectorHumans.length - 1 ? "true" : "false"}
-                                        >
-                                            {x.name} (ID: {x.id})
-                                        </option>
-                                    ))}
-                                </select>
-                                {isLastItemVisible && (
-                                    <span style={{
-                                        marginLeft: '10px',
-                                        fontSize: '12px',
-                                        color: '#007bff',
-                                        fontStyle: 'italic'
-                                    }}>
-                            Загрузка следующих элементов...
-                        </span>
-                                )}
-                            </div>
-                        );
-                    };
-
-                    return <SelectWithObserver key={city.id} city={city}/>;
-                })}
-
-            </div>};
+            {cityDataVisible && (
+                <div className="creator">
+                    В процессе попытки удаления Человека с id:{curId} возникли вопросы к зависимым городам, пожалуйста,
+                    свяжите нижестоящие города с другими людьми
+                    {cityData.map((city) => (
+                        <SelectWithObserver key={city.id} city={city}/>
+                    ))}
+                </div>
+            )}
         </div>
     );
-
 };
 
 export default HumanCreator;
